@@ -35,9 +35,15 @@ namespace Library_Management_System
         }
         static DataTable getData(string query)
         {
-            dt = new DataTable();
-            ad = new SqlDataAdapter(query, sc);
-            ad.Fill(dt);
+            try
+            {
+                dt = new DataTable();
+                ad = new SqlDataAdapter(query, sc);
+                ad.Fill(dt);
+            }catch(Exception e)
+            {
+                Console.WriteLine("Exception is:{0}", e);
+            }          
             return dt;
         }
         static void getBookData()
@@ -162,6 +168,8 @@ namespace Library_Management_System
                     executeDMLQuery(query);
                     query = "update Books set availableBooks=availableBooks+1 where Id=" + bid;
                     executeDMLQuery(query);
+                    Console.WriteLine("Returned Successfully...");
+                    query = "";
                 }
                 else
                 {
@@ -236,27 +244,37 @@ namespace Library_Management_System
         }
         public static void addBook(int bid, string name, int quantity)
         {
-            query = "insert into Books values(" + bid + ",'" + name + "'," + quantity + "," + quantity + ")";
-            if (executeDMLQuery(query))
+            if (quantity > 0)
             {
-                Console.WriteLine("Data Inserted Successfully");
+                query = "insert into Books values(" + bid + ",'" + name + "'," + quantity + "," + quantity + ")";
+                if (executeDMLQuery(query))
+                {
+                    Console.WriteLine("Data Inserted Successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Something went wrong.");
+                }
             }
             else
             {
-                Console.WriteLine("Something went wrong.");
+                Console.WriteLine("Please Enter Valid Quantity.");
             }
+
         }
         public static void showLogs()
         {
-            query = "select s.name,b.bookName,i.IssuedDate from Books b,IssuedBook i,Student s where s.Id = i.StudentId and b.Id=i.BookId";
+            query = "select s.name,s.noOfBook,b.bookName,b.availableBooks,i.IssuedDate from Books b,IssuedBook i,Student s where s.Id = i.StudentId and b.Id=i.BookId";
             dt = getData(query);
             if (dt.Rows.Count > 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     Console.WriteLine("Student Name:{0}", dt.Rows[i][0]);
-                    Console.WriteLine("Book Name:{0}", dt.Rows[i][1]);
-                    Console.WriteLine("Date:{0}", dt.Rows[i][2]);
+                    Console.WriteLine("Student issued book:{0}", dt.Rows[i][1]);
+                    Console.WriteLine("Book Name:{0}", dt.Rows[i][2]);
+                    Console.WriteLine("Available Books:{0}", dt.Rows[i][3]);
+                    Console.WriteLine("Date:{0}", dt.Rows[i][4]);
                     Console.WriteLine("------------------------------------------------------------");
                 }
             }
