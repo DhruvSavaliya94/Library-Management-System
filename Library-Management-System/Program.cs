@@ -16,6 +16,7 @@ namespace Library_Management_System
         static SqlCommand cmd;
         static DataTable dt = new DataTable();
         static string query;
+        // common method for insert, update and delete record 
         static bool executeDMLQuery(string query)
         {
             cmd = new SqlCommand(query, sc);
@@ -33,6 +34,7 @@ namespace Library_Management_System
             }
             return false;
         }
+        // fetch data from database
         static DataTable getData(string query)
         {
             try
@@ -169,6 +171,7 @@ namespace Library_Management_System
                     query = "update Books set availableBooks=availableBooks+1 where Id=" + bid;
                     executeDMLQuery(query);
                     Console.WriteLine("Returned Successfully...");
+                    // Adding data in log table for generate the log of library.
                     query = "";
                 }
                 else
@@ -210,6 +213,7 @@ namespace Library_Management_System
             }
             return false;
         }
+        // check user entered student is actuly available or not
         public static bool checkStudent(int sid)
         {
             query = "select Id from Student where Id=" + sid;
@@ -220,6 +224,7 @@ namespace Library_Management_System
             }
             return false;
         }
+        // check user entered book is actuly available or not
         public static bool checkBook(int bid)
         {
             query = "select Id from Books where Id=" + bid;
@@ -230,6 +235,7 @@ namespace Library_Management_System
             }
             return false;
         }
+        // Add new student in student table
         public static void addStudent(int sid,string name,string email,string contact)
         {
             query = "insert into Student values("+sid+",'"+ name + "','" + email + "'," + contact + ",0)";
@@ -242,6 +248,7 @@ namespace Library_Management_System
                 Console.WriteLine("Something went wrong.");
             }
         }
+        // Add new book in books table
         public static void addBook(int bid, string name, int quantity)
         {
             if (quantity > 0)
@@ -262,6 +269,7 @@ namespace Library_Management_System
             }
 
         }
+        // It will fetch the log record from log table
         public static void showLogs()
         {
             query = "select s.name,s.noOfBook,b.bookName,b.availableBooks,i.IssuedDate from Books b,IssuedBook i,Student s where s.Id = i.StudentId and b.Id=i.BookId";
