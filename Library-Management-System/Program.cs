@@ -72,7 +72,7 @@ namespace Library_Management_System
                     Console.WriteLine("Name:{0}", dt.Rows[i][1]);
                     Console.WriteLine("Email:{0}", dt.Rows[i][2]);
                     Console.WriteLine("Contact:{0}", dt.Rows[i][3]);
-                    Console.WriteLine("Issued Books:{0}", dt.Rows[i][4]);
+                    Console.WriteLine("Issued Books.:{0}", dt.Rows[i][4]);
                     Console.WriteLine("------------------------------------------------------------");
                 }
             }
@@ -222,18 +222,60 @@ namespace Library_Management_System
             }
             return false;
         }
-
+        public static void addStudent(int sid,string name,string email,string contact)
+        {
+            query = "insert into Student values("+sid+",'"+ name + "','" + email + "'," + contact + ",0)";
+            if (executeDMLQuery(query))
+            {
+                Console.WriteLine("Data Inserted Successfully");
+            }
+            else
+            {
+                Console.WriteLine("Something went wrong.");
+            }
+        }
+        public static void addBook(int bid, string name, int quantity)
+        {
+            query = "insert into Books values(" + bid + ",'" + name + "'," + quantity + "," + quantity + ")";
+            if (executeDMLQuery(query))
+            {
+                Console.WriteLine("Data Inserted Successfully");
+            }
+            else
+            {
+                Console.WriteLine("Something went wrong.");
+            }
+        }
+        public static void showLogs()
+        {
+            query = "select s.name,b.bookName,i.IssuedDate from Books b,IssuedBook i,Student s where s.Id = i.StudentId and b.Id=i.BookId";
+            dt = getData(query);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Console.WriteLine("Student Name:{0}", dt.Rows[i][0]);
+                    Console.WriteLine("Book Name:{0}", dt.Rows[i][1]);
+                    Console.WriteLine("Date:{0}", dt.Rows[i][2]);
+                    Console.WriteLine("------------------------------------------------------------");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No Log Found.");
+            }
+        }
         static void Main(string[] args)
         {
-            int choice;
+            int choice,sid,bid;
+            string name,email,contact;
             do
             {
-                Console.WriteLine("\nEnter Your Choice:\n1.Issue Book\n2.Book Data\n3.Student Data\n4.Issued Data\n5.Return Book\n6.Exit");
+                Console.WriteLine("\nEnter Your Choice:\n1.Issue Book\n2.Book Data\n3.Student Data\n4.Issued Data\n5.Return Book\n6.Add New Student\n7.Add New Book\n8.Show Log\n9.Exit");
                 choice = Convert.ToInt32(Console.ReadLine());
                 switch (choice)
                 {
                     case 1:
-                        int sid, bid;
                         getStudentData();
                         Console.WriteLine("Enter Student ID:");
                         sid = Convert.ToInt32(Console.ReadLine());
@@ -252,18 +294,40 @@ namespace Library_Management_System
                         getIssuedData();
                         break;
                     case 5:
-                        int _sid, _bid;
                         getStudentData();
                         Console.WriteLine("Enter Student ID:");
-                        _sid = Convert.ToInt32(Console.ReadLine());
-                        if (getIssueBookData(_sid))
+                        sid = Convert.ToInt32(Console.ReadLine());
+                        if (getIssueBookData(sid))
                         {
                             Console.WriteLine("Enter Book ID:");
-                            _bid = Convert.ToInt32(Console.ReadLine());
-                            returnBook(_sid, _bid);
+                            bid = Convert.ToInt32(Console.ReadLine());
+                            returnBook(sid, bid);
                         }
                         break;
                     case 6:
+                        Console.WriteLine("Enter Student ID:");
+                        sid = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("Enter Student Name:");
+                        name = Console.ReadLine();
+                        Console.WriteLine("Enter Student Email:");
+                        email = Console.ReadLine();
+                        Console.WriteLine("Enter Student Contact:");
+                        contact = Console.ReadLine();
+                        addStudent(sid,name,email,contact);
+                        break;
+                    case 7:
+                        Console.WriteLine("Enter Book ID:");
+                        bid = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("Enter Book Name:");
+                        name = Console.ReadLine();
+                        Console.WriteLine("Enter Book Quantity:");
+                        int qnt = Convert.ToInt32(Console.ReadLine());
+                        addBook(bid, name, qnt);
+                        break;
+                    case 8:
+                        showLogs();
+                        break;
+                    case 9:
                         System.Environment.Exit(0);
                         break;
                     default:
