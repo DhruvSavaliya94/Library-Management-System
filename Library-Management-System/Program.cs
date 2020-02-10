@@ -97,6 +97,9 @@ namespace Library_Management_System
                 if (executeDMLQuery(query))
                 {
                     Console.WriteLine("Record Inserted..");
+                    // log
+                    query = "insert into Logs(StudentId,BookId,IDate) values(" + sid + "," + bid + ",'" + DateTime.Now + "')";
+                    executeDMLQuery(query);
                 }
                 else
                 {
@@ -170,9 +173,10 @@ namespace Library_Management_System
                     executeDMLQuery(query);
                     query = "update Books set availableBooks=availableBooks+1 where Id=" + bid;
                     executeDMLQuery(query);
-                    Console.WriteLine("Returned Successfully...");
                     // Adding data in log table for generate the log of library.
-                    query = "";
+                    query = "update Logs set RDate='" + DateTime.Now + "' where StudentId=" + sid + " and BookId=" + bid + " and RDate IS NULL";
+                    executeDMLQuery(query);
+                    Console.WriteLine("Returned Successfully...");
                 }
                 else
                 {
@@ -272,24 +276,69 @@ namespace Library_Management_System
         // It will fetch the log record from log table
         public static void showLogs()
         {
-            query = "select s.name,s.noOfBook,b.bookName,b.availableBooks,i.IssuedDate from Books b,IssuedBook i,Student s where s.Id = i.StudentId and b.Id=i.BookId";
-            dt = getData(query);
-            if (dt.Rows.Count > 0)
+            int ch;
+            Console.WriteLine("Enter choice for log:\n1.By Student Id\n2.By Book Id.");
+            ch = Convert.ToInt32(Console.ReadLine());
+            query = "";
+            switch (ch)
             {
-                for (int i = 0; i < dt.Rows.Count; i++)
+                case 1:
+                    Console.WriteLine("Enter Student ID:");
+                    int sid = Convert.ToInt32(Console.ReadLine());
+                    if (checkStudent(sid))
+                    {
+                        query = "select s.Id, s.name, b.Id, b.bookName, l.IDate, l.RDate from Books b, Logs l, Student s where s.Id = l.StudentId and b.Id = l.BookId and s.Id = " + sid;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Student Not Found");
+                    }
+                    break;
+                case 2:
+                    Console.WriteLine("Enter Book ID:");
+                    int bid = Convert.ToInt32(Console.ReadLine());
+                    if (checkBook(bid))
+                    {
+                        query = "select s.Id, s.name, b.Id, b.bookName, l.IDate, l.RDate from Books b, Logs l, Student s where s.Id = l.StudentId and b.Id = l.BookId and b.Id = " + bid;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Book Not Found");
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Please enter valid choice...");
+                    showLogs();
+                    break;
+            }
+            if((ch == 1 || ch == 2) && query.Equals(""))
+            {
+                dt = getData(query);
+                if (dt.Rows.Count > 0)
                 {
-                    Console.WriteLine("Student Name:{0}", dt.Rows[i][0]);
-                    Console.WriteLine("Student issued book:{0}", dt.Rows[i][1]);
-                    Console.WriteLine("Book Name:{0}", dt.Rows[i][2]);
-                    Console.WriteLine("Available Books:{0}", dt.Rows[i][3]);
-                    Console.WriteLine("Date:{0}", dt.Rows[i][4]);
-                    Console.WriteLine("------------------------------------------------------------");
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        Console.WriteLine("Student ID:{0}", dt.Rows[i][0]);
+                        Console.WriteLine("Student Name:{0}", dt.Rows[i][1]);
+                        Console.WriteLine("Book ID:{0}", dt.Rows[i][2]);
+                        Console.WriteLine("Book Name:{0}", dt.Rows[i][3]);
+                        Console.WriteLine("Issued Date:{0}", dt.Rows[i][4]);
+                        if(dt.Rows[i][5].ToString() == "")
+                        {
+                            Console.WriteLine("Not returned yet.");
+                        } else
+                        {
+                            Console.WriteLine("Returned Date:{0}", dt.Rows[i][5]);
+                        }
+                        Console.WriteLine("------------------------------------------------------------");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Something went wrong.");
                 }
             }
-            else
-            {
-                Console.WriteLine("No Log Found.");
-            }
+
         }
         static void Main(string[] args)
         {
